@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Appointment {
+  id    Int                   @default(autoincrement()) @id
+  startDate DateTime
+  endDate  DateTime
+  name String
+  client Client               @relation(fields: [clientId], references: [id])
+  clientId Int                @map("client")
+  staffMember StaffMember     @relation(fields: [staffMemberId], references: [id])
+  staffMemberId Int           @map("staffMember")
+
+  @@unique([startDate, endDate], name: "appointment__index")
+  @@index([staffMemberId, clientId], name: "appointment_client_staffMember__index")
+  @@map("appointment")
+}
+
+model Client {
+  id        Int      @default(autoincrement()) @id
+  name      String
+  appointments Appointment[]
+}
+
+model StaffMember {
+  id        Int      @default(autoincrement()) @id
+  firstName String
+  lastName   String
+  appointments Appointment[]
+}
